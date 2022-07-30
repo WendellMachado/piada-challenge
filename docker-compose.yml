@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  piada-service:
+    container_name: piada-service
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+      - 9229:9229
+    command: npm run start:debug
+    env_file:
+      - .env
+    networks:
+      - piadanet
+    depends_on:
+      - piada-db
+
+  piada-db:
+    container_name: piada-db
+    image: mysql:latest
+    networks:
+      - piadanet
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_USER: ${DB_USERNAME}
+      DB_NAME: ${DB_NAME}
+      DB_DATA: /var/lib/db/data
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/db/data
+networks:
+  piadanet:
+volumes:
+  dbdata:
